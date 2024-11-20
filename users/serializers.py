@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-
+#from .models import User
 User = get_user_model()
 
 class CustomUserSerializer(serializers.ModelSerializer):
@@ -12,10 +12,11 @@ class CustomUserSerializer(serializers.ModelSerializer):
     )
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
     confirm_password = serializers.CharField(write_only=True, required=True)
+    role = serializers.ChoiceField(choices=User.ROLE_CHOICES)
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'password', 'confirm_password')
+        fields = ('id', 'username', 'email', 'password', 'confirm_password','role')
 
     def validate(self, attrs):
         if attrs['password'] != attrs['confirm_password']:
@@ -23,19 +24,21 @@ class CustomUserSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
+        role = validated_data.pop('role', 'buyer')
         user = User(
             username=validated_data['username'],
-            email=validated_data['email']
+            email=validated_data['email'],
+            role=role
         )
         user.set_password(validated_data['password'])
         user.save()
         return user
 
-class ProfileSerializer(serializers.ModelSerializer):
+'''class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'address')
-        read_only_fields = ('id', 'email')
+        read_only_fields = ('id', 'email')'''
 
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)

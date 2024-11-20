@@ -1,7 +1,0 @@
-env
-/env
-media/
-*/migrations/*
-.env
-*.pyc
-__pycache__/

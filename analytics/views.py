@@ -9,9 +9,11 @@ from orders.models import Order
 from .models import CustomReport, SalesAnalytics
 from .serializers import SalesAnalyticsSerializer, CustomReportSerializer
 from django.db import models
-
+from .permissions import IsAdmin
+from rest_framework.permissions import IsAuthenticated
 
 class SalesAnalyticsView(APIView):
+    permission_classes = [IsAuthenticated, IsAdmin]
     
     def get(self, request):
         
@@ -33,6 +35,7 @@ class SalesAnalyticsView(APIView):
 
 
 class UserBehaviorAnalyticsView(APIView): 
+    permission_classes = [IsAuthenticated, IsAdmin]
     def get(self, request):
         most_viewed_products = Product.objects.annotate(
             view_count=Count('cart_items_product')
@@ -60,6 +63,7 @@ class UserBehaviorAnalyticsView(APIView):
         return Response(data)
 
 class InventoryManagementView(APIView): 
+    permission_classes = [IsAuthenticated, IsAdmin]
     def get(self, request):
         low_stock_products = Product.objects.filter(stock_quantity__lt=10)
         
@@ -72,6 +76,7 @@ class InventoryManagementView(APIView):
         return Response(data)
 
 class GenerateCustomReportView(APIView):
+    permission_classes = [IsAuthenticated, IsAdmin]
     def get(self, request):
         start_date = request.GET.get('start_date')
         end_date = request.GET.get('end_date')
@@ -123,6 +128,7 @@ class GenerateCustomReportView(APIView):
         })
 
 class AnalyticsView(APIView): 
+    permission_classes = [IsAuthenticated, IsAdmin]
     def get(self, request):
         total_sales = Order.objects.aggregate(total_sales=Sum('total_amount'))
         total_revenue = total_sales['total_sales'] if total_sales['total_sales'] else 0

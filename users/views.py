@@ -10,6 +10,7 @@ from .serializers import CustomUserSerializer, ChangePasswordSerializer, ResetPa
 import random
 from django.contrib.auth import get_user_model
 from django.contrib.auth import logout
+from rest_framework.permissions import AllowAny
 
 User = get_user_model()
 
@@ -19,6 +20,7 @@ def send_otp(email, otp):
     send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
 
 class RegisterView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         serializer = CustomUserSerializer(data=request.data)
         if serializer.is_valid():
@@ -35,6 +37,7 @@ class RegisterView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class VerifyOtpView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         user_id = request.data.get("user_id")
         otp = request.data.get("otp")
@@ -137,6 +140,7 @@ class ResetPasswordView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ObtainTokenPairView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
         user = User.objects.filter(email=request.data.get("email")).first()
         if user and not user.is_email_verified:
