@@ -5,14 +5,33 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import JSONParser
 from .models import Product, Category, Review
 from .serializers import ProductSerializer, ReviewSerializer
+from .permissions import IsSellerOrReadOnly
 
 class ProductListCreateView(APIView):
+    #permission_classes = [IsAuthenticated]
+    permission_classes = [IsSellerOrReadOnly] 
     def get(self, request):
         products = Product.objects.all()
         serializer = ProductSerializer(products, many=True)
         return Response(serializer.data)
 
+    '''def post(self, request):
+        serializer = ProductSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(seller=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)'''
+
     def post(self, request):
+        print("Request user:", request.user)
+        print("Is authenticated:", request.user.is_authenticated)
+        print("Is staff (admin):", request.user.is_staff)
+        print("Is seller:", getattr(request.user, 'is_seller', False))
+        
+        if not (request.user.is_authenticated and (request.user.is_staff or getattr(request.user, 'is_seller', False))):
+            return Response({"detail": "Permission denied. Only sellers or admins can create products."},
+                            status=status.HTTP_403_FORBIDDEN)
+
         serializer = ProductSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(seller=request.user)

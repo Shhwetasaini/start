@@ -6,9 +6,11 @@ from .serializers import CartSerializer
 from rest_framework.permissions import IsAuthenticated
 from products.models import Product
 from orders.models import Order, OrderItem
+from .permissions import IsBuyerOrAdmin
 
 class AddToCartView(APIView):
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
+    permission_classes = [IsBuyerOrAdmin]
 
     def post(self, request):
         product_id = request.data.get('product_id')
@@ -30,8 +32,8 @@ class AddToCartView(APIView):
 
 
 class RemoveFromCartView(APIView):
-    permission_classes = [IsAuthenticated]
-
+    #permission_classes = [IsAuthenticated]
+    permission_classes = [IsBuyerOrAdmin]
     def delete(self, request, item_id):
         try:
             cart_item = CartItem.objects.get(id=item_id, cart__user=request.user)
@@ -41,8 +43,8 @@ class RemoveFromCartView(APIView):
             return Response({"error": "Item not found."}, status=status.HTTP_404_NOT_FOUND)
 
 class CheckoutView(APIView):
-    permission_classes = [IsAuthenticated]
-
+    #permission_classes = [IsAuthenticated]
+    permission_classes = [IsBuyerOrAdmin]
     def get(self, request):
         try:
             cart = Cart.objects.get(user=request.user)

@@ -6,8 +6,9 @@ class CustomUser(AbstractUser):
     ROLE_CHOICES = (("admin", "Admin"), ("seller", "Seller"), ("buyer", "Buyer"))
 
     email = models.EmailField(unique=True)
-    seller = models.BooleanField(default=False)
-    admin = models.BooleanField(default=False)
+    is_seller = models.BooleanField(default=True)
+    is_buyer = models.BooleanField(default=False)
+    is_admin = models.BooleanField(default=True)
     username = models.CharField(max_length=255)
     first_name = models.CharField(max_length=30, blank=True)
     last_name = models.CharField(max_length=30, blank=True)
